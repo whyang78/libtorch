@@ -1,11 +1,12 @@
 #include<iostream>
 #include<torch/script.h>
+#include<torch/cuda.h>
 #include<memory>
 
 int main(int argc,const char* argv[])
 {
 	//查看参数是否合法
-	std::cout << argc << std::endl; //argv参数下标自1开始，下标0是main函数名
+	std::cout <<"参数个数："<<argc << std::endl; //argv参数下标自1开始，下标0是main函数名
 	if (argc != 2)
 	{
 		std::cerr << "user:name.cpp model_path\n";
@@ -13,6 +14,7 @@ int main(int argc,const char* argv[])
 		return -1;
 	}
 
+	
 	//载入模型
 	torch::jit::script::Module module;
 	try
@@ -28,7 +30,16 @@ int main(int argc,const char* argv[])
 	std::cout << "model load successfully!\n";
 
 	//设置device
-	torch::DeviceType device_type=torch::kCUDA;
+	torch::DeviceType device_type;
+	std::cout <<"cuda是否可用："<< torch::cuda::is_available() << std::endl;
+	if (torch::cuda::is_available())
+	{
+		device_type = torch::kCUDA;
+	}
+	else
+	{
+		device_type = torch::kCPU;
+	}
 	torch::Device device(device_type, 0);
 
 	//模型以及输入数据转移到device上
